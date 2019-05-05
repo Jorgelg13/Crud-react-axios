@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import Header from './Header';
 import Navegacion from './Navegacion';
 import Posts from './Posts';
 import SinglePost from './SinglePost';
+import Formuario from './Formulario';
 
 class Router extends Component {
     state = { 
@@ -39,6 +41,25 @@ class Router extends Component {
        })
      }
 
+     crearPost = (post) =>{
+        axios.post(`https://jsonplaceholder.typicode.com/posts/`,{post})
+        .then(res =>{
+            if(res.status === 201){
+                Swal.fire(
+                    'Registro Creado!',
+                    'Se creo correctamente',
+                    'Excelente'
+                  )
+                let postId ={id: res.data.id}
+                const nuevoPost = Object.assign({}, res.data.post,postId);
+
+                 this.setState(prevState =>({
+                     posts: [...prevState.posts,nuevoPost]
+                 }))
+            }
+        })
+     }
+
     render() { 
         return ( 
         <BrowserRouter>
@@ -71,6 +92,13 @@ class Router extends Component {
                     }} 
 
                     />
+                    <Route exact path = "/crear" render ={ () =>{
+                        return(
+                            <Formuario
+                                crearPost = {this.crearPost}
+                            />
+                        )
+                    }}/>
                 </Switch>
               </div>
             </div>
